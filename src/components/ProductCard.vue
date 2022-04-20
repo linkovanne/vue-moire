@@ -1,8 +1,9 @@
 <template>
   <div>
     <router-link :to="{name: 'product', params: {id: item.id}}" class="catalog__pic">
-      <img :src="item.colors[0].gallery[0].file.url"
-           alt="Название товара">
+      <img v-if="item.colors[0].gallery"
+           :src="item.colors[0].gallery[0].file.url"
+           :alt="item.title">
     </router-link>
 
     <h3 class="catalog__title">

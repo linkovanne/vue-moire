@@ -35,7 +35,8 @@
     <b class="product__price">{{ product.price }} ₽</b>
 
     <button class="product__del button-del" type="button"
-            aria-label="Удалить товар из корзины">
+            aria-label="Удалить товар из корзины"
+            @click.prevent="deleteItem(product.product.id)">
       <svg width="20" height="20" fill="currentColor">
         <use xlink:href="#icon-close"></use>
       </svg>
@@ -44,9 +45,17 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
+
 export default {
   name: 'CartItem',
   props: ['product'],
+  methods: {
+    ...mapActions(['deleteProductFromCart']),
+    deleteItem(basketItemId) {
+      this.deleteProductFromCart(basketItemId);
+    },
+  },
 };
 </script>
 

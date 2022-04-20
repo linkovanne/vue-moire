@@ -24,22 +24,24 @@
     <section v-if="scene === 'empty'">Такой товар не найден...</section>
     <section v-if="scene === 'product'" class="item">
       <div class="item__pics pics">
-        <div class="pics__wrapper">
-          <img width="570" height="570"
-               :src="productImages[selectedImg].file.url"
-               alt="Название товара">
+        <div v-if="productImages && productImages.length > 0">
+          <div class="pics__wrapper">
+            <img width="570" height="570"
+                 :src="productImages[selectedImg].file.url"
+                 alt="Название товара">
+          </div>
+          <ul v-if="productImages && productImages.length > 0" class="pics__list">
+            <li v-for="img in productImages" :key="img.id" class="pics__item">
+              <!--<a class="pics__link pics__link&#45;&#45;current" href="#">-->
+              <img width="98" height="98" :src="img.file.url" alt="">
+              <!--</a>-->
+            </li>
+          </ul>
         </div>
-        <ul v-if="productImages && productImages.length > 0" class="pics__list">
-          <li v-for="img in productImages" :key="img.id" class="pics__item">
-            <!--<a class="pics__link pics__link&#45;&#45;current" href="#">-->
-            <img width="98" height="98" :src="img.file.url" alt="">
-            <!--</a>-->
-          </li>
-        </ul>
       </div>
 
       <div class="item__info">
-        <span class="item__code">Артикул: 150030</span>
+        <span class="item__code">Артикул: {{ productData.id }}</span>
         <h2 class="item__title">{{ productData.title }}</h2>
         <div class="item__form">
           <form class="form" action="#" method="POST" @submit.prevent="addToCart">
@@ -50,7 +52,7 @@
             </div>
 
             <div class="item__row">
-              <fieldset class="form__block">
+              <fieldset v-if="productData.colors" class="form__block">
                 <legend class="form__legend">Цвет</legend>
                 <ul class="colors colors--black">
                   <li v-for="color in productData.colors" :key="color.id" class="colors__item">
@@ -64,7 +66,8 @@
                 </ul>
               </fieldset>
 
-              <fieldset class="form__block">
+              <fieldset v-if="productData.sizes && productData.sizes.length > 0"
+                        class="form__block">
                 <legend class="form__legend">Размер</legend>
                 <label class="form__label form__label--small form__label--select">
                   <select class="form__select" v-model="productSize" type="text" name="category">
@@ -79,6 +82,15 @@
             <button class="item__button button button--primery" type="submit">
               В корзину
             </button>
+            <div v-show="productAddScene === 'adding'"
+                 class="item__add-scene">товар добавляется в корзину
+            </div>
+            <div v-show="productAddScene === 'error'"
+                 class="item__add-scene">не удалось добавить товар
+            </div>
+            <div v-show="productAddScene === 'done'"
+                 class="item__add-scene">товар добавлен в корзину
+            </div>
           </form>
         </div>
       </div>
@@ -188,6 +200,7 @@ export default {
         .then((response) => {
           this.productColorId = response.data.colors[0].id;
           this.productData = response.data;
+          this.productSize = response.data.sizes[0].id;
           this.scene = response.data ? 'product' : 'empty';
         })
         .catch(() => {
@@ -198,6 +211,11 @@ export default {
       this.productAddScene = 'adding';
       // eslint-disable-next-line max-len
       const colorId = this.productData.colors.filter((color) => color.id === this.productColorId)[0].color.id;
+
+      if (!this.productData.id || !this.productCount || !this.productSize || !colorId) {
+        this.productAddScene = 'error';
+        return;
+      }
 
       this.addProductToCart({
         productId: this.productData.id.toString(),
@@ -227,4 +245,7 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.item__add-scene {
+}
+</style>
